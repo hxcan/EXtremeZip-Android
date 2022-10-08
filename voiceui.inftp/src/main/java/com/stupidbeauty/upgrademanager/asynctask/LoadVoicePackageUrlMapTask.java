@@ -1,5 +1,10 @@
 package com.stupidbeauty.upgrademanager.asynctask;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.database.Cursor;
+import android.net.Uri;
 import android.util.Log;
 import com.stupidbeauty.upgrademanager.asynctask.LoadVoicePackageUrlMapTask;
 import java.lang.reflect.Type;
@@ -9,7 +14,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import android.annotation.SuppressLint;
 import com.upokecenter.cbor.CBORException;
-// import com.stupidbeauty.hxlauncher.bean.WakeLockPackageNameSetData;
+import android.os.Environment;
+import android.util.Log;
+import android.widget.Toast;
+import java.io.IOException;
+import java.util.ArrayList;
 import com.stupidbeauty.hxlauncher.datastore.RuntimeInformationStore;
 import java.util.Locale;
 import com.google.gson.Gson;
@@ -42,7 +51,7 @@ import android.content.pm.ShortcutInfo;
 import android.graphics.drawable.AnimationDrawable;
 import android.util.Pair;
 import com.stupidbeauty.upgrademanager.bean.FieldCode;
-// import com.stupidbeauty.hxlauncher.bean.WakeLockPackageNameSetData;
+import com.stupidbeauty.extremezip.EXtremeZip;
 import com.stupidbeauty.hxlauncher.datastore.RuntimeInformationStore;
 
 public class LoadVoicePackageUrlMapTask extends AsyncTask<Object, Void, Object>
@@ -63,6 +72,28 @@ public class LoadVoicePackageUrlMapTask extends AsyncTask<Object, Void, Object>
   private  HashMap<String, String > packageNameApplicationNameMap; //!<包名与应用程序名的映射
 
   private LoadVoicePackageUrlMapInterface launcherActivity=null; //!< 启动活动。
+  
+  /**
+  * uncompress the compressed data file.
+  */
+  private String exuzDataFile(String filePath) 
+  {
+    String result;
+    
+    EXtremeZip extremezip=new EXtremeZip(); // Create extremezip object.
+    
+    extremezip.exuz(filePath); // Compress.
+    
+    Context baseApplication=launcherActivity.getContext(); // Get the context.
+    
+    File downloadFolder = baseApplication.getFilesDir(); // Get the files dire
+
+    final String wholePath =downloadFolder.getPath()+ File.separator  + "voicePackageUrlMap.cbor.cx";
+
+    result=wholePath;
+    
+    return result;
+  } // private String exuzDataFile(String filePath)
 
   private void  loadVoicePackageUrlMapCbor() // 载入语音识别结果与下载网址之间的映射。使用CBOR。陈欣。
   {
@@ -137,7 +168,9 @@ public class LoadVoicePackageUrlMapTask extends AsyncTask<Object, Void, Object>
     Boolean result=false; //结果，是否成功。
 
     launcherActivity=(LoadVoicePackageUrlMapInterface)(params[0]); // 获取映射对象
-    filePath=(String)(params[1]); // file path.
+    filePath=(String)(params[1]); // file path. compressed.
+    
+    filePath=exuzDataFile(filePath); // uncompress the compressed data file.
             
     loadVoicePackageUrlMapCbor(); // 载入语音识别结果与下载网址之间的映射。使用CBOR。陈欣。
             
