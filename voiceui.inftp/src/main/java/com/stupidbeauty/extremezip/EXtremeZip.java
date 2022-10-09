@@ -5,7 +5,7 @@ import java.util.ArrayList;
 // import com.stupidbeauty.hxlauncher.datastore.RuntimeInformationStore;
 import java.util.Locale;
 import com.google.gson.Gson;
-import com.stupidbeauty.upgrademanager.Constants;
+// import com.stupidbeauty.upgrademanager.Constants;
 import java.io.ByteArrayInputStream;
 import org.tukaani.xz.SingleXZInputStream;
 import java.lang.reflect.Type;
