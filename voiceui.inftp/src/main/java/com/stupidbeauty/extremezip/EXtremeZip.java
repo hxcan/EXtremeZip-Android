@@ -2,7 +2,7 @@ package com.stupidbeauty.extremezip;
 
 import com.stupidbeauty.victoriafresh.VictoriaFresh;
 import java.util.ArrayList;
-import com.stupidbeauty.hxlauncher.datastore.RuntimeInformationStore;
+// import com.stupidbeauty.hxlauncher.datastore.RuntimeInformationStore;
 import java.util.Locale;
 import com.google.gson.Gson;
 import com.stupidbeauty.upgrademanager.Constants;
