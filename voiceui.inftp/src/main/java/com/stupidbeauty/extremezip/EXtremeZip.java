@@ -35,6 +35,7 @@ import android.util.Log;
 public class EXtremeZip
 {
   private byte[] wholeFileContent= null; //将照片文件内容全部读取。
+  private static final String TAG="EXtremeZip"; //!< 输出调试信息时使用的标记。
 
   /**
   * 根据偏移值来读取压缩块数据列表。
@@ -252,6 +253,8 @@ public class EXtremeZip
 //         byte[] compressedVfsMenu=(byte[])(wholeCbor.get("vfsMenu").ToObject(byteArrayType)); // Get the compressed vfs menu byte array.
     ByteString compressedVfsMenuByteString=(ByteString)(cborMap.get(new UnicodeString("vfsMenu")));
         byte[] compressedVfsMenu=compressedVfsMenuByteString.getBytes(); // Get the compressed vfs menu byte array.
+      Log.d(TAG, "exuz, compressedVfsMenu size: "+ compressedVfsMenu.length); //Debug.
+        
         
 //         checkMemoryUsage(90)
 //         replyByteArray = LZMA.decompress(compressedVfsMenu) # 解码目录VFS字节数组内容
