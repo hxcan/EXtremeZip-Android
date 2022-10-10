@@ -1,11 +1,18 @@
 package com.stupidbeauty.extremezip;
 
+import co.nstant.in.cbor.CborException;
+import co.nstant.in.cbor.model.Array;
+import co.nstant.in.cbor.model.ByteString;
+import co.nstant.in.cbor.model.Number;
+import co.nstant.in.cbor.model.UnicodeString;
+import co.nstant.in.cbor.model.Map;
 import com.stupidbeauty.victoriafresh.VictoriaFresh;
+import java.util.List;
 import java.util.ArrayList;
-// import com.stupidbeauty.hxlauncher.datastore.RuntimeInformationStore;
+import co.nstant.in.cbor.model.DataItem;
 import java.util.Locale;
 import com.google.gson.Gson;
-// import com.stupidbeauty.upgrademanager.Constants;
+import co.nstant.in.cbor.CborDecoder;
 import java.io.ByteArrayInputStream;
 import org.tukaani.xz.SingleXZInputStream;
 import java.lang.reflect.Type;
@@ -32,27 +39,35 @@ public class EXtremeZip
   /**
   * 根据偏移值来读取压缩块数据列表。
   */
-  private ArrayList<byte[]> readVfsDataList(CBORObject wholeCbor) 
+  private ArrayList<byte[]> readVfsDataList(Map wholeCbor) 
   {
 //     compressedVfsDataList = [] # 获取压缩后的数据块列表
     ArrayList<byte[]> compressedVfsDataList = new ArrayList(); // 获取压缩后的数据块列表
     
 //     startIndix=wholeCbor['vfsDataListStart'] # 初始起始位置。
-    int startIndix=wholeCbor.get("vfsDataListStart").AsInt32(); // 初始起始位置。
+//     int startIndix=wholeCbor.get("vfsDataListStart").AsInt32(); // 初始起始位置。
+    Number startIndexNumber=(Number)(wholeCbor.get(new UnicodeString("vfsDataListStart")));
+    int startIndix=startIndexNumber.getValue().intValue(); // 初始起始位置。
     
 //     puts "whole length: #{@wholeFileContent.length}, list conent: #{wholeCbor['vfsDataList']}" # Debug
     
     int dataBlockCounter=0;
     
-    CBORObject vfsDataList=wholeCbor.get("vfsDataList");
+//     CBORObject vfsDataList=wholeCbor.get("vfsDataList");
+    Array vfsDataListArray=(Array)(wholeCbor.get(new UnicodeString("vfsDataList")));
+    List<DataItem> vfsDataList=vfsDataListArray.getDataItems();
     
 //     wholeCbor['vfsDataList'].each do |currentBlockInfo| # 一个个块地处理
     for(dataBlockCounter=0; dataBlockCounter< vfsDataList.size(); dataBlockCounter++)
     {
-      CBORObject currentBlockInfo=vfsDataList.get(dataBlockCounter);
+//       CBORObject currentBlockInfo=vfsDataList.get(dataBlockCounter);
+      DataItem currentBlockInfoItem=vfsDataList.get(dataBlockCounter);
+      Map currentBlockInfo=(Map)(currentBlockInfoItem);
       
 //       length=currentBlockInfo['length'] # 获取长度。
-      int length=currentBlockInfo.get("length").AsInt32(); // 获取长度。
+//       int length=currentBlockInfo.get("length").AsInt32(); // 获取长度。
+      Number lengthNumber=(Number)(currentBlockInfo.get(new UnicodeString("length"))); // 获取长度。
+      int length=lengthNumber.getValue().intValue(); // 获取长度。
       
 //       currentBlock=@wholeFileContent[startIndix, length] # 读取内容
       byte[] currentBlock=new byte[length]; // 读取内容
@@ -74,7 +89,7 @@ public class EXtremeZip
   /**
   * 根据版本号，提取VFS数据内容
   */
-  private String extractVfsDataWithVersionExternalFile(CBORObject wholeCbor, String fileVersion) 
+  private String extractVfsDataWithVersionExternalFile(Map wholeCbor, int fileVersion) 
   {
 //     victoriaFreshData = '' # 解压后的数据块整体
 //     byte[] victoriaFreshData=new byte[availableByteAmount];
@@ -205,10 +220,26 @@ public class EXtremeZip
 //       options = {:tolerant => true}
 
 //       wholeCbor = CBOR.decode(wholeCborByteArray, options) # 解码
-      CBORObject wholeCbor= CBORObject.DecodeFromBytes(wholeCborByteArray); //解析消息。
+//       CBORObject wholeCbor= CBORObject.DecodeFromBytes(wholeCborByteArray); //解析消息。
+    ByteArrayInputStream byteArrayInputStream=new ByteArrayInputStream(wholeCborByteArray);
+      CborDecoder cborDecoder=new CborDecoder(byteArrayInputStream);
+      DataItem wholeCbor= null; // 解析消息。
+      try
+      {
+      wholeCbor= cborDecoder.decodeNext(); // 解析消息。
+      }
+      catch(CborException e)
+      {
+        e.printStackTrace();
+      }
 
 //       fileVersion = wholeCbor['version'] # 获取版本号
-      String fileVersion=wholeCbor.get("version").AsString(); // Get file version.
+//       String fileVersion=wholeCbor.get("version").AsString(); // Get file version.
+    Map cborMap=(Map)(wholeCbor);
+//     Chen xin
+    Number versionNumber= (Number)(cborMap.get(new UnicodeString("version")));
+//       String fileVersion=cborMap.get("version").AsString(); // Get file version.
+    int fileVersion=versionNumber.getValue().intValue();
             
 //       if (fileVersion < 14) # 版本号过小
 //         checkMemoryUsage(85)
@@ -217,7 +248,10 @@ public class EXtremeZip
 //         Chenxin.
 //         compressedVfsMenu = wholeCbor['vfsMenu'] # 获取压缩后的目录内容
         Type byteArrayType=byte[].class;
-        byte[] compressedVfsMenu=(byte[])(wholeCbor.get("vfsMenu").ToObject(byteArrayType)); // Get the compressed vfs menu byte array.
+        
+//         byte[] compressedVfsMenu=(byte[])(wholeCbor.get("vfsMenu").ToObject(byteArrayType)); // Get the compressed vfs menu byte array.
+    ByteString compressedVfsMenuByteString=(ByteString)(cborMap.get(new UnicodeString("vfsMenu")));
+        byte[] compressedVfsMenu=compressedVfsMenuByteString.getBytes(); // Get the compressed vfs menu byte array.
         
 //         checkMemoryUsage(90)
 //         replyByteArray = LZMA.decompress(compressedVfsMenu) # 解码目录VFS字节数组内容
@@ -240,7 +274,8 @@ public class EXtremeZip
 //         checkMemoryUsage(95)
 
 //         victoriaFreshDataFile = extractVfsDataWithVersionExternalFile(wholeCbor, fileVersion) # 根据版本号，提取VFS数据内容
-        String victoriaFreshDataFile = extractVfsDataWithVersionExternalFile(wholeCbor, fileVersion); // 根据版本号，提取VFS数据内容
+//         String victoriaFreshDataFile = extractVfsDataWithVersionExternalFile(wholeCbor, fileVersion); // 根据版本号，提取VFS数据内容
+        String victoriaFreshDataFile = extractVfsDataWithVersionExternalFile(cborMap, fileVersion); // 根据版本号，提取VFS数据内容
           
 //         checkMemoryUsage(100)
 
