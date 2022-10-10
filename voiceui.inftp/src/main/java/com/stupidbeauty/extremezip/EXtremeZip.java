@@ -1,5 +1,8 @@
 package com.stupidbeauty.extremezip;
 
+import org.apache.commons.io.IOUtils;
+import lzma.sdk.lzma.Decoder;
+import lzma.streams.LzmaInputStream;
 import co.nstant.in.cbor.CborException;
 import co.nstant.in.cbor.model.Array;
 import co.nstant.in.cbor.model.ByteString;
@@ -152,10 +155,15 @@ public class EXtremeZip
         
         try
         {
-        xzStream=new SingleXZInputStream(compressedVfsMenuByteStream);
-        availableByteAmount=xzStream.available(); // Get avaiable amount.
-             currentRawData = new byte[availableByteAmount]; // data block uncompressed.
-        xzStream.read(currentRawData, 0, availableByteAmount); // Decompress.
+//         xzStream=new SingleXZInputStream(compressedVfsMenuByteStream);
+//         availableByteAmount=xzStream.available(); // Get avaiable amount.
+//              currentRawData = new byte[availableByteAmount]; // data block uncompressed.
+//         xzStream.read(currentRawData, 0, availableByteAmount); // Decompress.
+        
+          final LzmaInputStream compressedIn = new LzmaInputStream( compressedVfsMenuByteStream, new Decoder());
+          IOUtils.read(compressedIn,currentRawData);
+        
+        
       FileUtils.writeByteArrayToFile(dataFile, currentRawData, appendTrue); // 写入。
         }
         catch(IOException e)
@@ -263,10 +271,19 @@ public class EXtremeZip
         byte[] replyByteArray = null; // 解码目录VFS字节数组内容
         try
         {
-        SingleXZInputStream xzStream=new SingleXZInputStream(compressedVfsMenuByteStream);
-        int availableByteAmount=xzStream.available(); // Get avaiable amount.
-        replyByteArray = new byte[availableByteAmount]; // 解码目录VFS字节数组内容
-        xzStream.read(replyByteArray, 0, availableByteAmount); // Decompress.
+//         SingleXZInputStream xzStream=new SingleXZInputStream(compressedVfsMenuByteStream);
+//         int availableByteAmount=xzStream.available(); // Get avaiable amount.
+//         replyByteArray = new byte[availableByteAmount]; // 解码目录VFS字节数组内容
+//         xzStream.read(replyByteArray, 0, availableByteAmount); // Decompress.
+
+          final LzmaInputStream compressedIn = new LzmaInputStream( compressedVfsMenuByteStream, new Decoder());
+          IOUtils.read(compressedIn,replyByteArray);
+          
+//                 SingleXZInputStream xzStream=new SingleXZInputStream(compressedVfsMenuByteStream);
+//         int availableByteAmount=xzStream.available(); // Get avaiable amount.
+//         replyByteArray = new byte[availableByteAmount]; // 解码目录VFS字节数组内容
+//         xzStream.read(replyByteArray, 0, availableByteAmount); // Decompress.
+
         }
         catch(IOException e)
         {
