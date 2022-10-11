@@ -161,7 +161,10 @@ public class EXtremeZip
 //         xzStream.read(currentRawData, 0, availableByteAmount); // Decompress.
         
           final LzmaInputStream compressedIn = new LzmaInputStream( compressedVfsMenuByteStream, new Decoder());
-          IOUtils.read(compressedIn,currentRawData);
+          final ByteArrayOutputStream currentRawDataOutputStream=new ByteArrayOutputStream();
+//           IOUtils.read(compressedIn,currentRawData);
+          IOUtils.copy(compressedIn,currentRawDataOutputStream);
+          currentRawData=currentRawDataOutputStream.toByteArray();
         
         
       FileUtils.writeByteArrayToFile(dataFile, currentRawData, appendTrue); // 写入。
@@ -277,7 +280,12 @@ public class EXtremeZip
 //         xzStream.read(replyByteArray, 0, availableByteAmount); // Decompress.
 
           final LzmaInputStream compressedIn = new LzmaInputStream( compressedVfsMenuByteStream, new Decoder());
-          IOUtils.read(compressedIn,replyByteArray);
+          final ByteArrayOutputStream currentRawDataOutputStream=new ByteArrayOutputStream();
+//           IOUtils.read(compressedIn,currentRawData);
+          IOUtils.copy(compressedIn,currentRawDataOutputStream);
+          replyByteArray=currentRawDataOutputStream.toByteArray();
+
+//           IOUtils.read(compressedIn,replyByteArray);
           
 //                 SingleXZInputStream xzStream=new SingleXZInputStream(compressedVfsMenuByteStream);
 //         int availableByteAmount=xzStream.available(); // Get avaiable amount.
