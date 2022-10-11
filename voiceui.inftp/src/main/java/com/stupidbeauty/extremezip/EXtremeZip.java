@@ -1,5 +1,10 @@
 package com.stupidbeauty.extremezip;
 
+import android.content.Context;
+import android.util.Log;
+import android.media.MediaDataSource;
+import com.google.gson.Gson;
+import com.upokecenter.cbor.CBORObject;
 import org.apache.commons.io.IOUtils;
 import lzma.sdk.lzma.Decoder;
 import lzma.streams.LzmaInputStream;
@@ -39,6 +44,7 @@ public class EXtremeZip
 {
   private byte[] wholeFileContent= null; //将照片文件内容全部读取。
   private static final String TAG="EXtremeZip"; //!< 输出调试信息时使用的标记。
+  private Context baseApplication; //!< Context.
 
   /**
   * 根据偏移值来读取压缩块数据列表。
@@ -98,10 +104,19 @@ public class EXtremeZip
 //     victoriaFreshData = '' # 解压后的数据块整体
 //     byte[] victoriaFreshData=new byte[availableByteAmount];
     
+//     File downloadFolder = baseApplication.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+// 
+//     final String wholePath =downloadFolder.getPath()+ File.separator  + fileName;
+
     
 //     dataFileName = 'victoriafreshdata.w' # 数据文件名
-    String dataFileName = "victoriafreshdata.w"; // 数据文件名
+    String dataFileNameOnly = "victoriafreshdata.w"; // 数据文件名
+    
+        File downloadFolder = baseApplication.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
 
+    String dataFileName =downloadFolder.getPath()+ File.separator  + dataFileNameOnly;
+
+    Log.d(TAG, "extractVfsDataWithVersionExternalFile, data file name: " + dataFileName); // Debug.
     
 //     dataFile = {} # 数据文件对象
     File dataFile = null; // 数据文件对象
@@ -198,8 +213,10 @@ public class EXtremeZip
     return dataFileName; // 返回解压后的数据块整体
   }
 
-  public void exuz(String filePath)
+  public void exuz(String filePath, Context context)
   {
+    baseApplication=context;
+    
 //     result = true # 解压结果
 
 //     currentBlockFile = File.new(rootPath, 'rb') # 打开文件
@@ -312,7 +329,7 @@ public class EXtremeZip
         VictoriaFresh clipDownloader = new VictoriaFresh(); // 创建下载器。
           
 //         $clipDownloader.releaseFilesExternalDataFile(replyByteArray, victoriaFreshDataFile) # 释放各个文件
-        clipDownloader.releaseFilesExternalDataFile(replyByteArray, victoriaFreshDataFile); // 释放各个文件
+        clipDownloader.releaseFilesExternalDataFile(replyByteArray, victoriaFreshDataFile, baseApplication); // 释放各个文件
 
 //         fileToRemove = File.new(victoriaFreshDataFile) # 要删除的文件
 //       end # if (fileVersion<14) #版本号过小
