@@ -166,7 +166,7 @@ public class EXtremeZip
         SingleXZInputStream xzStream=null;
         int availableByteAmount=0; // Get avaiable amount.
              byte[] currentRawData = null; // data block uncompressed.
-      boolean appendTrue=true;
+      boolean appendFile=true; // Whether to append to data file.
         
         try
         {
@@ -181,8 +181,12 @@ public class EXtremeZip
           IOUtils.copy(compressedIn,currentRawDataOutputStream);
           currentRawData=currentRawDataOutputStream.toByteArray();
         
+        if (dataBlockCounter==0) // First block, not append.
+        {
+          appendFile=false; // Not append.
+        } // if (dataBlockCounter==0) // First block, not append.
         
-      FileUtils.writeByteArrayToFile(dataFile, currentRawData, appendTrue); // 写入。
+      FileUtils.writeByteArrayToFile(dataFile, currentRawData, appendFile); // 写入。
         }
         catch(IOException e)
         {
