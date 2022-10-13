@@ -78,6 +78,7 @@ public class EXtremeZip
 //       int length=currentBlockInfo.get("length").AsInt32(); // 获取长度。
       Number lengthNumber=(Number)(currentBlockInfo.get(new UnicodeString("length"))); // 获取长度。
       int length=lengthNumber.getValue().intValue(); // 获取长度。
+      length=Math.min(length, wholeFileContent.length-wholeFileContent.startIndix); // Might not be enough data in the compresed file. Because downloaded partially.
       
 //       currentBlock=@wholeFileContent[startIndix, length] # 读取内容
       byte[] currentBlock=new byte[length]; // 读取内容
