@@ -238,53 +238,57 @@ public class EXtremeZip
     
     if (wholeFileContent!=null) // The file content exists
     {
-      byte[] wholeCborByteArray=new byte[wholeFileContent.length-4]; // cbor byte array.
-      System.arraycopy(wholeFileContent, 4, wholeCborByteArray, 0, wholeCborByteArray.length);
-
-      ByteArrayInputStream byteArrayInputStream=new ByteArrayInputStream(wholeCborByteArray);
-      CborDecoder cborDecoder=new CborDecoder(byteArrayInputStream);
-      DataItem wholeCbor= null; // 解析消息。
-      try
+      if (wholeFileContent.length>4)
       {
-        wholeCbor= cborDecoder.decodeNext(); // 解析消息。
-      }
-      catch(CborException e)
-      {
-        e.printStackTrace();
-      }
+        byte[] wholeCborByteArray=new byte[wholeFileContent.length-4]; // cbor byte array.
+        System.arraycopy(wholeFileContent, 4, wholeCborByteArray, 0, wholeCborByteArray.length);
 
-      Map cborMap=(Map)(wholeCbor);
+        ByteArrayInputStream byteArrayInputStream=new ByteArrayInputStream(wholeCborByteArray);
+        CborDecoder cborDecoder=new CborDecoder(byteArrayInputStream);
+        DataItem wholeCbor= null; // 解析消息。
+        try
+        {
+          wholeCbor= cborDecoder.decodeNext(); // 解析消息。
+        }
+        catch(CborException e)
+        {
+          e.printStackTrace();
+        }
 
-      Number versionNumber= (Number)(cborMap.get(new UnicodeString("version")));
+        Map cborMap=(Map)(wholeCbor);
 
-      int fileVersion=versionNumber.getValue().intValue();
+        Number versionNumber= (Number)(cborMap.get(new UnicodeString("version")));
+
+        int fileVersion=versionNumber.getValue().intValue();
+                
+        Type byteArrayType=byte[].class;
+            
+        ByteString compressedVfsMenuByteString=(ByteString)(cborMap.get(new UnicodeString("vfsMenu")));
+        byte[] compressedVfsMenu=compressedVfsMenuByteString.getBytes(); // Get the compressed vfs menu byte array.
+        Log.d(TAG, "exuz, compressedVfsMenu size: "+ compressedVfsMenu.length); //Debug.
+            
+        ByteArrayInputStream compressedVfsMenuByteStream=new ByteArrayInputStream(compressedVfsMenu);
+            
+        byte[] replyByteArray = null; // 解码目录VFS字节数组内容
+        try
+        {
+          final LzmaInputStream compressedIn = new LzmaInputStream( compressedVfsMenuByteStream, new Decoder());
+          final ByteArrayOutputStream currentRawDataOutputStream=new ByteArrayOutputStream();
+          IOUtils.copy(compressedIn,currentRawDataOutputStream);
+          replyByteArray=currentRawDataOutputStream.toByteArray();
+        }
+        catch(IOException e)
+        {
+          e.printStackTrace();
+        }
               
-      Type byteArrayType=byte[].class;
-          
-      ByteString compressedVfsMenuByteString=(ByteString)(cborMap.get(new UnicodeString("vfsMenu")));
-      byte[] compressedVfsMenu=compressedVfsMenuByteString.getBytes(); // Get the compressed vfs menu byte array.
-      Log.d(TAG, "exuz, compressedVfsMenu size: "+ compressedVfsMenu.length); //Debug.
-          
-      ByteArrayInputStream compressedVfsMenuByteStream=new ByteArrayInputStream(compressedVfsMenu);
-          
-      byte[] replyByteArray = null; // 解码目录VFS字节数组内容
-      try
-      {
-        final LzmaInputStream compressedIn = new LzmaInputStream( compressedVfsMenuByteStream, new Decoder());
-        final ByteArrayOutputStream currentRawDataOutputStream=new ByteArrayOutputStream();
-        IOUtils.copy(compressedIn,currentRawDataOutputStream);
-        replyByteArray=currentRawDataOutputStream.toByteArray();
+        String victoriaFreshDataFile = extractVfsDataWithVersionExternalFile(cborMap, fileVersion); // 根据版本号，提取VFS数据内容
+              
+        VictoriaFresh clipDownloader = new VictoriaFresh(); // 创建下载器。
+              
+        clipDownloader.releaseFilesExternalDataFile(replyByteArray, victoriaFreshDataFile, baseApplication); // 释放各个文件
       }
-      catch(IOException e)
-      {
-        e.printStackTrace();
-      }
-            
-      String victoriaFreshDataFile = extractVfsDataWithVersionExternalFile(cborMap, fileVersion); // 根据版本号，提取VFS数据内容
-            
-      VictoriaFresh clipDownloader = new VictoriaFresh(); // 创建下载器。
-            
-      clipDownloader.releaseFilesExternalDataFile(replyByteArray, victoriaFreshDataFile, baseApplication); // 释放各个文件
+
     } // if (wholeFileContent!=null) // The file content exists
   } // public void exuz(String filePath, Context context)
 }
