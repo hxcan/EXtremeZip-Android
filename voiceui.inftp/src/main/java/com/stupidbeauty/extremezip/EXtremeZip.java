@@ -218,132 +218,73 @@ public class EXtremeZip
     return dataFileName; // 返回解压后的数据块整体
   }
 
+  /**
+  * ExtremeUnZip the specified file.
+  */
   public void exuz(String filePath, Context context)
   {
     baseApplication=context;
     
-//     result = true # 解压结果
-
-//     currentBlockFile = File.new(rootPath, 'rb') # 打开文件
-// 
-//     @wholeFileContent = currentBlockFile.read # 读取全部内容
-
     File photoFile=new File(filePath); // The data file.
     
     try
     {
-    wholeFileContent= FileUtils.readFileToByteArray(photoFile); //将照片文件内容全部读取。
+      wholeFileContent= FileUtils.readFileToByteArray(photoFile); //将照片文件内容全部读取。
     }
     catch(IOException e)
     {
       e.printStackTrace();
     }
+    
+    if (wholeFileContent!=null) // The file content exists
+    {
+      byte[] wholeCborByteArray=new byte[wholeFileContent.length-4]; // cbor byte array.
+      System.arraycopy(wholeFileContent, 4, wholeCborByteArray, 0, wholeCborByteArray.length);
 
-//     currentBlockFile.close # 关闭文件
-
-//     checkMemoryUsage(60)
-
-//     Chen xin.
-
-//     wholeCborByteArray = @wholeFileContent[4..-1] # 从第5个到末尾
-
-    byte[] wholeCborByteArray=new byte[wholeFileContent.length-4]; // cbor byte array.
-    System.arraycopy(wholeFileContent, 4, wholeCborByteArray, 0, wholeCborByteArray.length);
-
-//     begin # 可能出错。
-//       options = {:tolerant => true}
-
-//       wholeCbor = CBOR.decode(wholeCborByteArray, options) # 解码
-//       CBORObject wholeCbor= CBORObject.DecodeFromBytes(wholeCborByteArray); //解析消息。
-    ByteArrayInputStream byteArrayInputStream=new ByteArrayInputStream(wholeCborByteArray);
+      ByteArrayInputStream byteArrayInputStream=new ByteArrayInputStream(wholeCborByteArray);
       CborDecoder cborDecoder=new CborDecoder(byteArrayInputStream);
       DataItem wholeCbor= null; // 解析消息。
       try
       {
-      wholeCbor= cborDecoder.decodeNext(); // 解析消息。
+        wholeCbor= cborDecoder.decodeNext(); // 解析消息。
       }
       catch(CborException e)
       {
         e.printStackTrace();
       }
 
-//       fileVersion = wholeCbor['version'] # 获取版本号
-//       String fileVersion=wholeCbor.get("version").AsString(); // Get file version.
-    Map cborMap=(Map)(wholeCbor);
-//     Chen xin
-    Number versionNumber= (Number)(cborMap.get(new UnicodeString("version")));
-//       String fileVersion=cborMap.get("version").AsString(); // Get file version.
-    int fileVersion=versionNumber.getValue().intValue();
-            
-//       if (fileVersion < 14) # 版本号过小
-//         checkMemoryUsage(85)
-//         puts 'file version too old' # 报告错误
-//       else # 版本号够大
-//         Chenxin.
-//         compressedVfsMenu = wholeCbor['vfsMenu'] # 获取压缩后的目录内容
-        Type byteArrayType=byte[].class;
-        
-//         byte[] compressedVfsMenu=(byte[])(wholeCbor.get("vfsMenu").ToObject(byteArrayType)); // Get the compressed vfs menu byte array.
-    ByteString compressedVfsMenuByteString=(ByteString)(cborMap.get(new UnicodeString("vfsMenu")));
-        byte[] compressedVfsMenu=compressedVfsMenuByteString.getBytes(); // Get the compressed vfs menu byte array.
+      Map cborMap=(Map)(wholeCbor);
+
+      Number versionNumber= (Number)(cborMap.get(new UnicodeString("version")));
+
+      int fileVersion=versionNumber.getValue().intValue();
+              
+      Type byteArrayType=byte[].class;
+          
+      ByteString compressedVfsMenuByteString=(ByteString)(cborMap.get(new UnicodeString("vfsMenu")));
+      byte[] compressedVfsMenu=compressedVfsMenuByteString.getBytes(); // Get the compressed vfs menu byte array.
       Log.d(TAG, "exuz, compressedVfsMenu size: "+ compressedVfsMenu.length); //Debug.
-        
-        
-//         checkMemoryUsage(90)
-//         replyByteArray = LZMA.decompress(compressedVfsMenu) # 解码目录VFS字节数组内容
-        ByteArrayInputStream compressedVfsMenuByteStream=new ByteArrayInputStream(compressedVfsMenu);
-        
-        byte[] replyByteArray = null; // 解码目录VFS字节数组内容
-        try
-        {
-//         SingleXZInputStream xzStream=new SingleXZInputStream(compressedVfsMenuByteStream);
-//         int availableByteAmount=xzStream.available(); // Get avaiable amount.
-//         replyByteArray = new byte[availableByteAmount]; // 解码目录VFS字节数组内容
-//         xzStream.read(replyByteArray, 0, availableByteAmount); // Decompress.
-
-          final LzmaInputStream compressedIn = new LzmaInputStream( compressedVfsMenuByteStream, new Decoder());
-          final ByteArrayOutputStream currentRawDataOutputStream=new ByteArrayOutputStream();
-//           IOUtils.read(compressedIn,currentRawData);
-          IOUtils.copy(compressedIn,currentRawDataOutputStream);
-          replyByteArray=currentRawDataOutputStream.toByteArray();
-
-//           IOUtils.read(compressedIn,replyByteArray);
           
-//                 SingleXZInputStream xzStream=new SingleXZInputStream(compressedVfsMenuByteStream);
-//         int availableByteAmount=xzStream.available(); // Get avaiable amount.
-//         replyByteArray = new byte[availableByteAmount]; // 解码目录VFS字节数组内容
-//         xzStream.read(replyByteArray, 0, availableByteAmount); // Decompress.
-
-        }
-        catch(IOException e)
-        {
-          e.printStackTrace();
-        }
-//         byte[] replyByteArray = LZMA.decompress(compressedVfsMenu); // 解码目录VFS字节数组内容
+      ByteArrayInputStream compressedVfsMenuByteStream=new ByteArrayInputStream(compressedVfsMenu);
           
-//         checkMemoryUsage(95)
-
-//         victoriaFreshDataFile = extractVfsDataWithVersionExternalFile(wholeCbor, fileVersion) # 根据版本号，提取VFS数据内容
-//         String victoriaFreshDataFile = extractVfsDataWithVersionExternalFile(wholeCbor, fileVersion); // 根据版本号，提取VFS数据内容
-        String victoriaFreshDataFile = extractVfsDataWithVersionExternalFile(cborMap, fileVersion); // 根据版本号，提取VFS数据内容
-          
-//         checkMemoryUsage(100)
-
-
-//         $clipDownloader = VictoriaFresh.new # 创建下载器。
-        VictoriaFresh clipDownloader = new VictoriaFresh(); // 创建下载器。
-          
-//         $clipDownloader.releaseFilesExternalDataFile(replyByteArray, victoriaFreshDataFile) # 释放各个文件
-        clipDownloader.releaseFilesExternalDataFile(replyByteArray, victoriaFreshDataFile, baseApplication); // 释放各个文件
-
-//         fileToRemove = File.new(victoriaFreshDataFile) # 要删除的文件
-//       end # if (fileVersion<14) #版本号过小
+      byte[] replyByteArray = null; // 解码目录VFS字节数组内容
+      try
+      {
+        final LzmaInputStream compressedIn = new LzmaInputStream( compressedVfsMenuByteStream, new Decoder());
+        final ByteArrayOutputStream currentRawDataOutputStream=new ByteArrayOutputStream();
+        IOUtils.copy(compressedIn,currentRawDataOutputStream);
+        replyByteArray=currentRawDataOutputStream.toByteArray();
+      }
+      catch(IOException e)
+      {
+        e.printStackTrace();
+      }
             
-//       result =true # 解压成功
-//     rescue EOFError => e # 文件内容提前到末尾。一般是压缩包文件未传输完全 。
-//       puts "Error: the exz file may be incomplete." # 报告错误。文件可能不完整。
-//             
-//       result = false # 失败
-//     end #begin # 可能出错。
-  }
+      String victoriaFreshDataFile = extractVfsDataWithVersionExternalFile(cborMap, fileVersion); // 根据版本号，提取VFS数据内容
+            
+      VictoriaFresh clipDownloader = new VictoriaFresh(); // 创建下载器。
+            
+      clipDownloader.releaseFilesExternalDataFile(replyByteArray, victoriaFreshDataFile, baseApplication); // 释放各个文件
+    } // if (wholeFileContent!=null) // The file content exists
+  } // public void exuz(String filePath, Context context)
 }
