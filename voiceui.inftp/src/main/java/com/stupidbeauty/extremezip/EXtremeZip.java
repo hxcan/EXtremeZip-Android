@@ -265,7 +265,7 @@ public class EXtremeZip
             
         ByteString compressedVfsMenuByteString=(ByteString)(cborMap.get(new UnicodeString("vfsMenu")));
         byte[] compressedVfsMenu=compressedVfsMenuByteString.getBytes(); // Get the compressed vfs menu byte array.
-        Log.d(TAG, "exuz, compressedVfsMenu size: "+ compressedVfsMenu.length); //Debug.
+        // Log.d(TAG, "exuz, compressedVfsMenu size: "+ compressedVfsMenu.length); //Debug.
             
         ByteArrayInputStream compressedVfsMenuByteStream=new ByteArrayInputStream(compressedVfsMenu);
             

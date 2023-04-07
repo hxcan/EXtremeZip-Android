@@ -28,16 +28,16 @@ android
  
 dependencies
 {
-  compile 'com.koushikdutta.async:androidasync:2.1.7'
+  implementation 'com.koushikdutta.async:androidasync:2.1.7'
   implementation 'commons-io:commons-io:2.6'
-  compile 'com.github.hxcan:rotatingactiveuser:2021.11.29'
-  compile 'com.mcxiaoke.volley:library:1.0.19'
+  implementation 'com.github.hxcan:rotatingactiveuser:2021.11.29'
+  implementation 'com.mcxiaoke.volley:library:1.0.19'
   implementation 'com.github.hxcan:victoriafresh.android:2022.10.27'
-  compile 'com.upokecenter:cbor:4.4.4'
+  implementation 'com.upokecenter:cbor:4.4.4'
   implementation 'co.nstant.in:cbor:0.9'
-  compile group: 'com.squareup.okhttp', name: 'okhttp', version: '1.6.0'
+  implementation group: 'com.squareup.okhttp', name: 'okhttp', version: '1.6.0'
   implementation 'com.squareup.okhttp3:okhttp:4.9.2'
-  compile group: 'com.koushikdutta.ion', name: 'ion', version: '2.1.7'
+  implementation group: 'com.koushikdutta.ion', name: 'ion', version: '2.1.7'
   implementation 'androidx.legacy:legacy-support-v4:1.0.0'
   implementation 'androidx.appcompat:appcompat:1.2.0'
   implementation("io.github.g00fy2:versioncompare:1.4.1")
