@@ -32,7 +32,7 @@ dependencies
   implementation 'commons-io:commons-io:2.6'
   implementation 'com.github.hxcan:rotatingactiveuser:2021.11.29'
   implementation 'com.mcxiaoke.volley:library:1.0.19'
-  implementation 'com.github.hxcan:victoriafresh.android:2022.10.27'
+  implementation 'com.github.hxcan:victoriafresh.android:2023.5.7'
   implementation 'com.upokecenter:cbor:4.4.4'
   implementation 'co.nstant.in:cbor:0.9'
   implementation group: 'com.squareup.okhttp', name: 'okhttp', version: '1.6.0'
