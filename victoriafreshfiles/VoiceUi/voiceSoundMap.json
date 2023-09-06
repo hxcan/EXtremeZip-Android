@@ -1,0 +1,24 @@
+{
+  "voicePackageMapJsonItemList": [
+    {
+      "packageName": "需要解锁",
+      "voiceCommand": "NeedUnlock.4.29.1.35.aac.ogg"
+    },
+    {
+      "packageName": "文件下载完毕",
+      "voiceCommand": "File.download.finished.aac"
+    },
+    {
+      "packageName": "服务器停止响应",
+      "voiceCommand": "Server.Stopped.Response.aac"
+    },
+    {
+      "packageName": "开始下载",
+      "voiceCommand": "start.download.aac"
+    },
+    {
+      "packageName": "准备安装",
+      "voiceCommand": "prepare.install.27788.aac"
+    }
+  ]
+}
